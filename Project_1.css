@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartFridge AI | Intelligent Food Expiry Prediction</title>
+    <link rel="preconnect" href="[fonts.googleapis.com](https://fonts.googleapis.com)">
+    <link rel="preconnect" href="[fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
+    <link href="[fonts.googleapis.com](https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap)" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00b894;
+            --primary-dark: #00a381;
+            --secondary: #0984e3;
+            --dark: #2d3436;
+            --light: #f8f9fa;
+            --gray: #636e72;
+            --gradient: linear-gradient(135deg, #00b894 0%, #0984e3 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            background: var(--gradient);
+            color: white !important;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+        }
+
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .mobile-menu span {
+            width: 25px;
+            height: 3px;
+            background: var(--dark);
+            border-radius: 2px;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 5% 80px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 150%;
+            background: var(--gradient);
+            opacity: 0.05;
+            border-radius: 50%;
+            transform: rotate(-15deg);
+        }
+
+        .hero-content {
+            max-width: 600px;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 span {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 184, 148, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 184, 148, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--dark);
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .hero-image {
+            position: absolute;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45%;
+            max-width: 600px;
+        }
+
+        .hero-image img {
+            width: 100%;
+            filter: drop-shadow(0 30px 60px rgba(0,0,0,0.15));
+        }
+
+        .fridge-visual {
+            background: white;
+            border-radius: 30px;
+            padding: 2rem;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        }
+
+        .fridge-screen {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 1.5rem;
+            color: white;
+        }
+
+        .fridge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .fridge-time {
+            font-size: 0.875rem;
+            opacity: 0.7;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .food-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+        .food-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .food-info {
+            flex: 1;
+        }
+
+        .food-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .food-expiry {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+
+        .expiry-bar {
+            width: 60px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .expiry-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .expiry-good { background: var(--primary); width: 90%; }
+        .expiry-warn { background: #fdcb6e; width: 50%; }
+        .expiry-danger { background: #e17055; width: 20%; }
+
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            padding: 4rem 5%;
+            background: white;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 5%;
+            background: var(--light);
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-tag {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-desc {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-color: rgba(0, 184, 148, 0.2);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        /* Architecture Section */
+        .architecture {
+            padding: 100px 5%;
+            background: white;
+        }
+
+        .arch-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .arch-diagram {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
+            border-radius: 30px;
+            padding: 3rem;
+        }
+
+        .arch-layer {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .arch-layer:last-child {
+            margin-bottom: 0;
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .layer-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .layer-title {
+            font-weight: 600;
+        }
+
+        .layer-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .layer-item {
+            background: var(--light);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .arch-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .arch-content p {
+            color: var(--gray);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .arch-list {
+            list-style: none;
+        }
+
+        .arch-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .arch-list .check {
+            width: 24px;
+            height: 24px;
+            background: rgba(0, 184, 148, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 100px 5%;
+            background: linear-gradient(180deg, var(--light) 0%, white 100%);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 40px;
+            right: -1rem;
+            width: calc(100% - 80px);
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            transform: translateX(50%);
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin: 0 auto 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Agents Section */
+        .agents {
+            padding: 100px 5%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+        }
+
+        .agents .section-header {
+            color: white;
+        }
+
+        .agents .section-desc {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .agent-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        .agent-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-5px);
+        }
+
+        .agent-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .agent-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .agent-card p {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .agent-tasks {
+            list-style: none;
+        }
+
+        .agent-tasks li {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            padding: 0.3rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .agent-tasks li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            padding: 100px 5%;
+            background: white;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 2rem;
+        }
+
+        .tech-item {
+            text-align: center;
+            padding: 2rem;
+            background: var(--light);
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+
+        .tech-item:hover {
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .tech-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tech-item h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .tech-item p {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 100px 5%;
+            background: var(--gradient);
+            text-align: center;
+            color: white;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta .btn {
+            background: white;
+            color: var(--primary);
+        }
+
+        .cta .btn:hover {
+            background: var(--dark);
+            color: white;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 60px 5% 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand .logo {
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .footer-brand p {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+            max-width: 300px;
+        }
+
+        .footer-col h4 {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            padding: 0.4rem 0;
+            transition: color 0.3s;
+        }
+
+        .footer-col a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero-image { display: none; }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .arch-container { grid-template-columns: 1fr; }
+            .steps { grid-template-columns: repeat(2, 1fr); }
+            .step:not(:last-child)::after { display: none; }
+            .agents-grid { grid-template-columns: repeat(2, 1fr); }
+            .tech-grid { grid-template-columns: repeat(3, 1fr); }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu { display: flex; }
+            .hero { padding: 100px 5% 60px; }
+            .hero h1 { font-size: 2rem; }
+            .features-grid, .agents-grid { grid-template-columns: 1fr; }
+            .steps { grid-template-columns: 1fr; }
+            .tech-grid { grid-template-columns: repeat(2, 1fr); }
+            .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
+            .stats { grid-template-columns: 1fr; }
+            .stat-card { padding: 1rem; }
+            .stat-number { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">🧊 SmartFridge AI</div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#architecture">Architecture</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#agents">AI Agents</a></li>
+            <li><a href="#contact" class="nav-cta">Get Started</a></li>
+        </ul>
+        <div class="mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="hero-badge">🚀 Powered by Multi-Agent AI</span>
+            <h1>Never Waste Food Again with <span>Intelligent Expiry Prediction</span></h1>
+            <p>Our smart fridge combines IoT sensors with collaborative AI agents to track, predict, and optimize your food freshness in real-time.</p>
+            <div class="btn-group">
+                <a href="#features" class="btn btn-primary">Explore Features →</a>
+                <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="fridge-visual">
+                <div class="fridge-screen">
+                    <div class="fridge-header">
+                        <span class="fridge-time">SmartFridge Dashboard</span>
+                        <span class="status-dot"></span>
+                    </div>
+                    <div class="food-item">
+                        <div class="food-icon">🥛</div>
+                        <div class="food-info">
+                            <div class="food-name">Organic Milk</div>
+                            <div class="food-expiry">Expires in 5 days</div>
+                        </div>
+                        <div class="expiry-bar"><div class="expiry-fill expiry-good"></div></div>
+                    </div>
+                    <div class="food-item">
+                        <div class="food-icon">🧀</div>
+                        <div class="food-info">
+                            <div class="food-name">Cheddar Cheese</div>
+                            <div class="food-expiry">Expires in 2 days</div>
+                        </div>
+                        <div class="expiry-bar"><div class="expiry-fill expiry-warn"></div></div>
+                    </div>
+                    <div class="food-item">
+                        <div class="food-icon">🍓</div>
+                        <div class="food-info">
+                            <div class="food-name">Fresh Strawberries</div>
+                            <div class="food-expiry">Use today!</div>
+                        </div>
+                        <div class="expiry-bar"><div class="expiry-fill expiry-danger"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stat-card">
+            <div class="stat-number">40%</div>
+            <div class="stat-label">Reduction in Food Waste</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">98%</div>
+            <div class="stat-label">Prediction Accuracy</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">6+</div>
+            <div class="stat-label">Collaborative AI Agents</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Real-time Monitoring</div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <p class="section-tag">Features</p>
+            <h2 class="section-title">Intelligent Food Management</h2>
+            <p class="section-desc">Experience the future of food storage with AI-powered insights and IoT integration.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📸</div>
+                <h3>Visual Recognition</h3>
+                <p>Computer vision identifies food items automatically when placed in the fridge, eliminating manual entry.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌡️</div>
+                <h3>Environmental Monitoring</h3>
+                <p>IoT sensors track temperature, humidity, and ethylene levels to optimize storage conditions.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔮</div>
+                <h3>Predictive Analytics</h3>
+                <p>Machine learning models predict expiry dates based on actual conditions, not just labels.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔔</div>
+                <h3>Smart Notifications</h3>
+                <p>Receive timely alerts about expiring items and personalized recipe suggestions.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛒</div>
+                <h3>Shopping Integration</h3>
+                <p>Auto-generate shopping lists based on consumption patterns and inventory levels.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🍳</div>
+                <h3>Recipe Suggestions</h3>
+                <p>Get meal ideas that prioritize soon-to-expire ingredients to minimize waste.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section class="architecture" id="architecture">
+        <div class="arch-container">
+            <div class="arch-diagram">
+                <div class="arch-layer">
+                    <div class="layer-header">
+                        <div class="layer-icon">📱</div>
+                        <span class="layer-title">Presentation Layer</span>
+                    </div>
+                    <div class="layer-items">
+                        <span class="layer-item">Mobile App</span>
+                        <span class="layer-item">Web Dashboard</span>
+                        <span class="layer-item">Fridge Display</span>
+                        <span class="layer-item">Voice Assistant</span>
+                    </div>
+                </div>
+                <div class="arch-layer">
+                    <div class="layer-header">
+                        <div class="layer-icon">🤖</div>
+                        <span class="layer-title">Multi-Agent AI Layer</span>
+                    </div>
+                    <div class="layer-items">
+                        <span class="layer-item">Coordinator Agent</span>
+                        <span class="layer-item">Vision Agent</span>
+                        <span class="layer-item">Prediction Agent</span>
+                        <span class="layer-item">Notification Agent</span>
+                    </div>
+                </div>
+                <div class="arch-layer">
+                    <div class="layer-header">
+                        <div class="layer-icon">⚡</div>
+                        <span class="layer-title">Processing Layer</span>
+                    </div>
+                    <div class="layer-items">
+                        <span class="layer-item">Apache Kafka</span>
+                        <span class="layer-item">TensorFlow</span>
+                        <span class="layer-item">Redis Cache</span>
+                        <span class="layer-item">REST APIs</span>
+                    </div>
+                </div>
+                <div class="arch-layer">
+                    <div class="layer-header">
+                        <div class="layer-icon">📡</div>
+                        <span class="layer-title">IoT Sensor Layer</span>
+                    </div>
+                    <div class="layer-items">
+                        <span class="layer-item">Temperature</span>
+                        <span class="layer-item">Humidity</span>
+                        <span class="layer-item">Camera</span>
+                        <span class="layer-item">Weight Sensors</span>
+                        <span class="layer-item">Gas Sensors</span>
+                    </div>
+                </div>
+            </div>
+            <div class="arch-content">
+                <p class="section-tag">System Architecture</p>
+                <h2>Built for Scale & Intelligence</h2>
+                <p>Our four-layer architecture ensures seamless communication between IoT devices, AI agents, and user interfaces.</p>
+                <ul class="arch-list">
+                    <li>
+                        <span class="check">✓</span>
+                        <div>
+                            <strong>Edge Computing</strong>
+                            <p style="color: var(--gray); font-size: 0.9rem;">Process sensor data locally for instant response times</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="check">✓</span>
+                        <div>
+                            <strong>Cloud Sync</strong>
+                            <p style="color: var(--gray); font-size: 0.9rem;">Secure cloud backup and cross-device synchronization</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="check">✓</span>
+                        <div>
+                            <strong>Agent Orchestration</strong>
+                            <p style="color: var(--gray); font-size: 0.9rem;">Intelligent coordination between specialized AI agents</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="section-header">
+            <p class="section-tag">Process</p>
+            <h2 class="section-title">How SmartFridge AI Works</h2>
+            <p class="section-desc">From sensor data to actionable insights in milliseconds.</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Sense</h3>
+                <p>IoT sensors continuously monitor temperature, humidity, and detect when items are added or removed.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Identify</h3>
+                <p>Computer vision recognizes food items and extracts label information automatically.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Predict</h3>
+                <p>AI agents analyze environmental data and food characteristics to predict actual expiry.</p>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>Act</h3>
+                <p>Receive smart notifications, recipe suggestions, and automated shopping list updates.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Agents Section -->
+    <section class="agents" id="agents">
+        <div class="section-header">
+            <p class="section-tag">Multi-Agent System</p>
+            <h2 class="section-title">Meet Our AI Agents</h2>
+            <p class="section-desc">Specialized agents working together to manage your food intelligently.</p>
+        </div>
+        <div class="agents-grid">
+            <div class="agent-card">
+                <div class="agent-icon">🎯</div>
+                <h3>Coordinator Agent</h3>
+                <p>Orchestrates communication between all agents and manages task delegation.</p>
+                <ul class="agent-tasks">
+                    <li>Task prioritization</li>
+                    <li>Agent communication</li>
+                    <li>Conflict resolution</li>
+                </ul>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">👁️</div>
+                <h3>Vision Agent</h3>
+                <p>Processes camera feeds to identify food items and assess visual freshness.</p>
+                <ul class="agent-tasks">
+                    <li>Object detection</li>
+                    <li>Label reading (OCR)</li>
+                    <li>Freshness scoring</li>
+                </ul>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">📊</div>
+                <h3>Prediction Agent</h3>
+                <p>Analyzes historical and environmental data to forecast expiry dates.</p>
+                <ul class="agent-tasks">
+                    <li>ML model inference</li>
+                    <li>Pattern recognition</li>
+                    <li>Confidence scoring</li>
+                </ul>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">🌡️</div>
+                <h3>Environment Agent</h3>
+                <p>Monitors and optimizes storage conditions for maximum freshness.</p>
+                <ul class="agent-tasks">
+                    <li>Sensor data fusion</li>
+                    <li>Anomaly detection</li>
+                    <li>Climate control</li>
+                </ul>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">📣</div>
+                <h3>Notification Agent</h3>
+                <p>Delivers timely, context-aware alerts across all your devices.</p>
+                <ul class="agent-tasks">
+                    <li>Priority filtering</li>
+                    <li>Channel selection</li>
+                    <li>User preference learning</li>
+                </ul>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">🍽️</div>
+                <h3>Recipe Agent</h3>
+                <p>Suggests meals based on inventory, preferences, and expiry urgency.</p>
+                <ul class="agent-tasks">
+                    <li>Ingredient matching</li>
+                    <li>Nutritional optimization</li>
+                    <li>Waste minimization</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="tech-stack" id="tech">
+        <div class="section-header">
+            <p class="section-tag">Technology</p>
+            <h2 class="section-title">Built With Modern Tech</h2>
+            <p class="section-desc">Enterprise-grade infrastructure for reliability and scale.</p>
+        </div>
+        <div class="tech-grid">
+            <div class="tech-item">
+                <div class="tech-icon">🐍</div>
+                <h4>Python</h4>
+                <p>AI & Backend</p>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">⚛️</div>
+                <h4>React</h4>
+                <p>Web Interface</p>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">🧠</div>
+                <h4>TensorFlow</h4>
+                <p>Machine Learning</p>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">📡</div>
+                <h4>MQTT</h4>
+                <p>IoT Protocol</p>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">🐳</div>
+                <h4>Docker</h4>
+                <p>Containerization</p>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">☁️</div>
+                <h4>AWS</h4>
+                <p>Cloud Infrastructure</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta" id="contact">
+        <h2>Ready to Reduce Food Waste?</h2>
+        <p>Join the smart kitchen revolution and start saving food, money, and the environment today.</p>
+        <a href="mailto:contact@smartfridge.ai" class="btn">Get Early Access →</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="logo">🧊 SmartFridge AI</div>
+                <p>Intelligent food management powered by multi-agent AI and IoT sensors. Reducing waste, one fridge at a time.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#architecture">Architecture</a></li>
+                    <li><a href="#agents">AI Agents</a></li>
+                    <li><a href="#tech">Tech Stack</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">API Reference</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Case Studies</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 SmartFridge AI. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" title="Twitter">𝕏</a>
+                <a href="#" title="LinkedIn">in</a>
+                <a href="#" title="GitHub">⌘</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar background on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.boxShadow = '0 2px 30px rgba(0,0,0,0.1)';
+            } else {
+                nav.style.boxShadow = '0 2px 20px rgba(0,0,0,0.05)';
+            }
+        });
+
+        // Mobile menu toggle (basic implementation)
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const navLinks = document.querySelector('.nav-links');
+        
+        mobileMenu.addEventListener('click', () => {
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+            navLinks.style.position = 'absolute';
+            navLinks.style.top = '100%';
+            navLinks.style.left = '0';
+            navLinks.style.right = '0';
+            navLinks.style.background = 'white';
+            navLinks.style.flexDirection = 'column';
+            navLinks.style.padding = '1rem';
+            navLinks.style.gap = '1rem';
+            navLinks.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+        });
+
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .agent-card, .step, .tech-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
